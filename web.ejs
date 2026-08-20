@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JadiBot — WhatsApp Bot</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui; }
+    body { background: #0f111a; color: #e6e6e6; max-width: 500px; margin: 0 auto; padding: 16px; }
+    .card { background: #1a1d2b; border-radius: 14px; padding: 18px; margin: 12px 0; }
+    .status-online { color: #4ade80; font-weight: bold; font-size: 28px; }
+    .status-offline { color: #f87171; font-weight: bold; font-size: 28px; }
+    .green { color: #4ade80; }
+    .red { color: #f87171; }
+    .yellow { color: #facc15; }
+    .btn { padding: 14px 20px; border-radius: 10px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; width: 32%; }
+    .btn-green { background: #16a34a; color: white; }
+    .btn-yellow { background: #eab308; color: #111; }
+    .btn-red { background: #dc2626; color: white; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .log-box { background: #141621; padding: 14px; border-radius: 10px; font-family: monospace; font-size: 13px; max-height: 220px; overflow-y: auto; margin-top: 8px; }
+    .input { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #25293b; color: white; font-size: 16px; margin-bottom: 10px; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h3>Status</h3>
+    <div class="<%= connectionState.status === 'connected' ? 'status-online' : 'status-offline' %>">
+      <span class="status-dot" style="background: <%= connectionState.status === 'connected' ? '#4ade80' : connectionState.status === 'connecting' ? '#facc15' : '#f87171' %>"></span>
+      <%= connectionState.status === 'connected' ? 'Online' : connectionState.status === 'connecting' ? 'Menghubungkan...' : 'Offline' %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Nomor Bot</h3>
+    <div style="font-size: 20px; font-weight: bold;">+<%= ADMIN_NUMBER %></div>
+  </div>
+
+  <% if(connectionState.status === 'connecting' && !connectionState.pairingCode) { %>
+  <div class="card">
+    <h3>🔗 Pairing — Masukkan Nomor</h3>
+    <form method="POST" action="/pairing">
+      <input class="input" type="tel" name="nomor" placeholder="Contoh: 6281234567890" required>
+      <button class="btn btn-green" style="width:100%;">Kirim Kode Pairing</button>
+    </form>
+  </div>
+  <% } %>
+
+  <% if(connectionState.pairingCode) { %>
+  <div class="card">
+    <h3>📲 Masukkan Kode Ini di WhatsApp</h3>
+    <div style="font-size: 42px; font-weight: bold; text-align: center; letter-spacing: 8px; padding:20px; background:#25293b; border-radius:12px;">
+      <%= connectionState.pairingCode %>
+    </div>
+    <p style="text-align:center; color:#aaa; margin-top:10px;">Buka WhatsApp → Perangkat Tertaut → Tautkan dengan nomor telepon</p>
+  </div>
+  <% } %>
+
+  <div class="card">
+    <h3>📋 Log Koneksi</h3>
+    <div class="log-box">
+      <% logs.forEach(l => { %>
+        <div><%= l.includes('✅') ? '<span class="green">' + l + '</span>' : l.includes('❌') ? '<span class="red">' + l + '</span>' : l %></div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Kontrol Bot</h3>
+    <form method="POST" action="/restart" style="display:inline;">
+      <button class="btn btn-green">Start</button>
+    </form>
+    <form method="POST" action="/stop" style="display:inline;">
+      <button class="btn btn-yellow">Stop</button>
+    </form>
+    <form method="POST" action="/hapus-sesi" style="display:inline;">
+      <button class="btn btn-red">Hapus Sesi</button>
+    </form>
+  </div>
+
+</body>
+</html>
